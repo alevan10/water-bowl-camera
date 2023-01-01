@@ -1,0 +1,14 @@
+[Unit]
+Description=Watcher Service for Cat Waterbowl
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=robo.ruthie
+ExecStart=/usr/bin/python3 php /home/robo.ruthie/waterbowl_camera.py
+
+[Install]
+WantedBy=multi-user.target
