@@ -53,7 +53,6 @@ Unit:
   stage: Tests
   retry: 1
   script:
-    - echo $(curl http://levan.home:5000/v2/water-bowl-api/manifests/latest)
     - pytest -v ./tests/unit
 
 
@@ -68,7 +67,7 @@ Integration:
         POSTGRES_DATABASE: "postgres"
         POSTGRES_USER: "postgres"
         POSTGRES_PASSWORD: "postgres"
-    - name: levan.home:5000/water-bowl-api:latest
+    - name: levan.home:5000/water-bowl-api
       alias: water-bowl-api
       variables:
         POSTGRES_ADDRESS: "postgres:5432"
@@ -88,7 +87,7 @@ Check-Deploy:
     ANSIBLE_HOST_KEY_CHECKING: "False"
   before_script:
     - pip install -r prod-requirements.txt
-    - mkdir ~/.ssh && cp $WATERBOWL_SSH_KEY ~/.ssh/waterbowl_ssh_key
+    - mkdir ~/.ssh && cp $WATERBOWL_SSH_KEY ~/.ssh/waterbowl_ssh_key && chmod 600 ~/.ssh/waterbowl_ssh_key
   script:
     - ansible-playbook playbooks/deploy.yaml --check -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
 
@@ -102,6 +101,6 @@ Deploy:
     ANSIBLE_HOST_KEY_CHECKING: "False"
   before_script:
     - pip install -r prod-requirements.txt
-    - mkdir ~/.ssh && cp $WATERBOWL_SSH_KEY ~/.ssh/waterbowl_ssh_key
+    - mkdir ~/.ssh && cp $WATERBOWL_SSH_KEY ~/.ssh/waterbowl_ssh_key && chmod 600 ~/.ssh/waterbowl_ssh_key
   script:
     - ansible-playbook playbooks/deploy.yaml -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
