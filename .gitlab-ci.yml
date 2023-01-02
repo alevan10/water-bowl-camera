@@ -83,6 +83,8 @@ Check-Deploy:
   stage: Tests
   retry: 1
   image: python:3.9
+  variables:
+    ANSIBLE_HOST_KEY_CHECKING: "False"
   before_script:
     - pip install -r prod-requirements.txt
     - mkdir ~/.ssh && cp $WATERBOWL_SSH_KEY ~/.ssh/waterbowl_ssh_key
@@ -95,6 +97,8 @@ Deploy:
   only:
     - main
   image: python:3.9
+  variables:
+    ANSIBLE_HOST_KEY_CHECKING: "False"
   before_script:
     - pip install -r prod-requirements.txt
     - mkdir ~/.ssh && cp $WATERBOWL_SSH_KEY ~/.ssh/waterbowl_ssh_key

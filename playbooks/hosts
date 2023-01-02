@@ -2,4 +2,3 @@
 catpi.home
 
 catpi.home ansible_ssh_private_key_file=~/.ssh/waterbowl_ssh_key
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'
