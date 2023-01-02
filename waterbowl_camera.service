@@ -1,0 +1,14 @@
+[Unit]
+Description=Watcher Service for Cat Waterbowl
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ruthie
+ExecStart=/camera/run_watcher.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,106 @@
+# This file is a template, and might need editing before it works on your project.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
+
+# Official language image. Look for the different tagged releases at:
+# https://hub.docker.com/r/library/python/tags/
+image: python:3.9
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -V  # Print out python version for debugging
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+  - pip install -r dev-requirements.txt
+  - export PYTHONPATH="$(pwd)/waterbowl:$PYTHONPATH"
+
+stages:
+  - Static Analysis
+  - Tests
+  - Build
+  - Deploy
+
+Pylint:
+  stage: Static Analysis
+  retry: 1
+  script:
+    - pylint -E -d C0301 waterbowl tests
+
+Black:
+  stage: Static Analysis
+  retry: 1
+  script:
+    - python -m black . --check --verbose
+
+Unit:
+  stage: Tests
+  retry: 1
+  script:
+    - pytest -v ./tests/unit
+
+
+Integration:
+  stage: Tests
+  retry: 2
+  services:
+    - name: postgres:14.3
+      alias: postgres
+      variables:
+        POSTGRES_ADDRESS: "postgres:5432"
+        POSTGRES_DATABASE: "postgres"
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "postgres"
+    - name: levan.home:5000/water-bowl-api
+      alias: water-bowl-api
+      variables:
+        POSTGRES_ADDRESS: "postgres:5432"
+        POSTGRES_DATABASE: "postgres"
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "postgres"
+  variables:
+    API_BASE_URL: http://water-bowl-api
+  script:
+    - pytest -v ./tests/integration
+
+Check-Deploy:
+  stage: Tests
+  retry: 1
+  image: python:3.9
+  variables:
+    ANSIBLE_HOST_KEY_CHECKING: "False"
+  before_script:
+    - pip install -r prod-requirements.txt
+    - chmod 600 "$WATERBOWL_SSH_KEY"
+  script:
+    - ansible-playbook playbooks/deploy.yaml --check --private-key "$WATERBOWL_SSH_KEY" -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
+
+Deploy:
+  stage: Deploy
+  retry: 1
+  only:
+    - main
+  image: python:3.9
+  variables:
+    ANSIBLE_HOST_KEY_CHECKING: "False"
+  before_script:
+    - pip install -r prod-requirements.txt
+    - chmod 600 "$WATERBOWL_SSH_KEY"
+  script:
+    - ansible-playbook playbooks/deploy.yaml --private-key "$WATERBOWL_SSH_KEY" -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
