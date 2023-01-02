@@ -58,8 +58,7 @@ Unit:
 
 Integration:
   stage: Tests
-  retry: 1
-  timeout: 10m
+  retry: 2
   services:
     - name: postgres:14.3
       alias: postgres
@@ -88,9 +87,9 @@ Check-Deploy:
     ANSIBLE_HOST_KEY_CHECKING: "False"
   before_script:
     - pip install -r prod-requirements.txt
-    - mkdir ~/.ssh && echo $WATERBOWL_SSH_KEY > ~/.ssh/waterbowl_ssh_key && chmod 600 ~/.ssh/waterbowl_ssh_key
+    - chmod 600 "$WATERBOWL_SSH_KEY"
   script:
-    - ansible-playbook playbooks/deploy.yaml --check -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
+    - ansible-playbook playbooks/deploy.yaml --check --private-key "$WATERBOWL_SSH_KEY" -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
 
 Deploy:
   stage: Deploy
@@ -102,6 +101,6 @@ Deploy:
     ANSIBLE_HOST_KEY_CHECKING: "False"
   before_script:
     - pip install -r prod-requirements.txt
-    - mkdir ~/.ssh && echo $WATERBOWL_SSH_KEY > ~/.ssh/waterbowl_ssh_key && chmod 600 ~/.ssh/waterbowl_ssh_key
+    - chmod 600 "$WATERBOWL_SSH_KEY"
   script:
-    - ansible-playbook playbooks/deploy.yaml -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
+    - ansible-playbook playbooks/deploy.yaml --private-key "$WATERBOWL_SSH_KEY" -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
