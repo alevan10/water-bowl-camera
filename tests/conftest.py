@@ -27,6 +27,13 @@ def mock_local_storage_dir() -> Path:
 
 
 @pytest.fixture
+def mock_local_storage_log(mock_local_storage_dir: Path) -> Path:
+    log_file = mock_local_storage_dir.joinpath("log.csv")
+    log_file.touch()
+    yield log_file
+
+
+@pytest.fixture
 def test_picture(test_data_dir: Path, mock_local_storage_dir: Path):
     tmp_file = mock_local_storage_dir.joinpath("test_image.jpg")
     shutil.copy(test_data_dir.joinpath("test_image.jpg"), tmp_file)

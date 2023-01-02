@@ -44,7 +44,7 @@ async def test_get_health_returns_false(
 async def test_send_picture(
     base_url: str, test_api_service: ApiService, test_server: aioresponses
 ):
-    test_server.post(f"{base_url}/picture", status=200)
+    test_server.post(f"{base_url}/pictures", status=200)
     success = await test_api_service.send_picture(timestamp=1.1, picture=Path(__file__))
     assert success
 
@@ -53,6 +53,6 @@ async def test_send_picture(
 async def test_send_picture_fails(
     base_url: str, test_api_service: ApiService, test_server: aioresponses
 ):
-    test_server.post(f"{base_url}/picture", status=500, body="")
+    test_server.post(f"{base_url}/pictures", status=500, body="")
     with pytest.raises(ApiException):
         await test_api_service.send_picture(timestamp=1.1, picture=Path(__file__))

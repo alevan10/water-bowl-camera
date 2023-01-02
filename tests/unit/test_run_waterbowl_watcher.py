@@ -52,6 +52,7 @@ def test_camera_service() -> AbstractCameraService:
     yield MockCameraService()
 
 
+@pytest.mark.usefixtures("mock_local_storage_log")
 @pytest.mark.asyncio
 class TestImageWaterBowl:
     async def test_happy_path(

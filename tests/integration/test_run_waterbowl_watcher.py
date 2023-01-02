@@ -21,13 +21,6 @@ def test_api_service() -> ApiService:
 
 
 @pytest.fixture
-def mock_local_storage_log(mock_local_storage_dir: Path) -> Path:
-    log_file = mock_local_storage_dir.joinpath("log.csv")
-    log_file.touch()
-    yield log_file
-
-
-@pytest.fixture
 def mock_local_storage(
     mock_local_storage_dir: Path, mock_local_storage_log: Path
 ) -> None:
