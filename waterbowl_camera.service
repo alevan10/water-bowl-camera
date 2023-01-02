@@ -7,8 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-User=robo.ruthie
-ExecStart=/usr/bin/python3 php /home/robo.ruthie/waterbowl_camera.py
+User=ruthie
+ExecStart=/camera/run_watcher.sh
 
 [Install]
 WantedBy=multi-user.target

@@ -1,0 +1,44 @@
+- name: Deploy camera watcher
+  hosts: camera
+  remote_user: robo.ruthie
+  tasks:
+    - name: Stop waterbowl_camera
+      become: true
+      systemd:
+        name: waterbowl_camera
+        state: stopped
+      register: service_stop
+      failed_when:
+        - service_stop.failed == true
+        - '"Could not find the requested service" not in service_stop.msg'
+    - name: Copy watcher directory to remote
+      become: true
+      copy:
+        src: ../waterbowl
+        dest: /camera
+        owner: ruthie
+    - name: Copy requirements.txt
+      become: true
+      copy:
+        src: ../requirements.txt
+        dest: /camera
+        owner: ruthie
+    - name: Copy run script to remote
+      become: true
+      copy:
+        src: ../run_watcher.sh
+        dest: /camera
+        owner: ruthie
+    - name: Copy service to remote
+      become: true
+      copy:
+        src: ../waterbowl_camera.service
+        dest: /etc/systemd/system/waterbowl_camera.service
+        owner: ruthie
+    - name: Start waterbowl_camera service
+      become: true
+      systemd:
+        state: started
+        enabled: true
+        daemon_reload: true
+        name: waterbowl_camera

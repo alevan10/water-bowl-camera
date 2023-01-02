@@ -83,8 +83,3 @@ async def watch_water_bowl():
         await image_water_bowl(camera_service, api_service)
         await asyncio.sleep(WAIT_TIME)
     pass
-
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(watch_water_bowl())

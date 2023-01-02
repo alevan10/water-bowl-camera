@@ -16,7 +16,7 @@ from waterbowl.run_waterbowl_watcher import image_water_bowl
 @pytest.fixture
 def test_api_service() -> MagicMock:
     with mock.patch(
-        "waterbowl.run_waterbowl_watcher.ApiService", MagicMock
+        "waterbowl.run_waterbowl_watcher.ApiService", MagicMock()
     ) as mock_api_service:
         yield mock_api_service
 
@@ -52,7 +52,7 @@ def test_camera_service() -> AbstractCameraService:
     yield MockCameraService()
 
 
-@pytest.mark.usefixtures("mock_local_storage_log")
+@pytest.mark.usefixtures("mock_local_storage_log", "mock_storage_functions")
 @pytest.mark.asyncio
 class TestImageWaterBowl:
     async def test_happy_path(
@@ -63,7 +63,7 @@ class TestImageWaterBowl:
         await image_water_bowl(cam=test_camera_service, api_service=test_api_service)
 
         test_api_service.api_healthy.assert_called_once()
-        test_api_service.send_picture.assert_called_once()
+        assert test_api_service.send_picture.call_count == 3
 
     @pytest.mark.freeze_time("2022-12-31")
     async def test_api_not_healthy(

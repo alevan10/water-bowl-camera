@@ -1,12 +1,15 @@
 import asyncio
 import shutil
 import subprocess
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 
 from waterbowl.enums import ENVIRONMENT, ROOT_DIR, Environments
 
 TEST_FILE = ROOT_DIR.joinpath("tests", "testdata", "test_image.jpg")
+
+logger = logging.getLogger(__name__)
 
 
 def take_picture_sync(command: list[str]) -> None:
@@ -65,6 +68,7 @@ class CameraService(AbstractCameraService):
         self.loop = asyncio.get_event_loop()
 
     async def take_picture(self, filepath: Path) -> Path:
+        logger.info("Taking picture.", extra={"picture_file": filepath})
         if filepath.exists():
             raise FileExistsError()
         command = [*self.picture_command, str(filepath)]

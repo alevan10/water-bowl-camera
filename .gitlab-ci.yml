@@ -28,6 +28,7 @@ before_script:
   - python -V  # Print out python version for debugging
   - pip install --upgrade pip
   - pip install -r requirements.txt
+  - pip install -r dev-requirements.txt
   - export PYTHONPATH="$(pwd)/waterbowl:$PYTHONPATH"
 
 stages:
@@ -84,8 +85,9 @@ Deploy:
   retry: 1
   only:
     - main
-  image: alpine/helm:3.8.1
-  before_script: []
+  image: python:3.9
+  before_script:
+    - pip install -r prod-requirements.txt
   script:
-    - WATER_BOWL_API_VERSION=$(cat VERSION)
-    - helm upgrade --install water-bowl-api ./water-bowl-api --values=./water-bowl-api/values.yaml --namespace waterbowl --create-namespace --set image.tag=${WATER_BOWL_API_VERSION}
+    - cat "$WATERBOWL_SSH_KEY" > ~/.ssh/waterbowl_ssh_key
+    - ansible-playbook playbooks/deploy.yaml -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
