@@ -4,7 +4,7 @@ black:
 	python -m black .
 
 lint:
-	pylint -E -d C0301 src/waterbowl-api tests
+	pylint -E -d C0301 waterbowl tests
 
 isort:
 	isort **/*.py

@@ -8,6 +8,7 @@ class Environments(str, Enum):
     DEV = "dev"
 
 
+API_BASE_URL = os.environ.get("API_BASE_URL", "http://levan.home/api/waterbowl/v1")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", Environments.DEV)
 WAIT_TIME = os.environ.get("WAIT_TIME", 5 * 60)  # Wait for 5 minutes
 

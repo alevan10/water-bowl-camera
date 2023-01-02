@@ -5,6 +5,8 @@ import aiofiles
 import aiohttp
 from aiohttp import FormData
 
+from waterbowl.enums import API_BASE_URL
+
 
 class ApiException(Exception):
     """
@@ -13,7 +15,7 @@ class ApiException(Exception):
 
 
 class ApiService:
-    def __init__(self, base_url: str = "http://levan.home/api/waterbowl/v1"):
+    def __init__(self, base_url: str = API_BASE_URL):
         self.base_url = base_url
 
     async def api_healthy(self) -> bool:
@@ -23,7 +25,7 @@ class ApiService:
 
     async def send_picture(self, timestamp: float, picture: Path) -> bool:
         form_data = FormData()
-        form_data.add_field("timestamp", timestamp)
+        form_data.add_field("timestamp", str(timestamp))
         async with aiofiles.open(picture, "rb") as picture_file:
             form_data.add_field(
                 "picture",
@@ -33,8 +35,8 @@ class ApiService:
             )
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    f"{self.base_url}/picture", data=form_data
+                    f"{self.base_url}/pictures", data=form_data
                 ) as resp:
                     if resp.status != 200:
-                        raise ApiException()
+                        raise ApiException(f"Error from the api: status {resp.status}")
                 return True

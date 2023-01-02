@@ -21,8 +21,13 @@ def test_data_dir(test_dir: Path):
 
 
 @pytest.fixture
-def test_picture(test_data_dir: Path):
+def mock_local_storage_dir() -> Path:
     with TemporaryDirectory() as tmp_dir:
-        tmp_file = Path(tmp_dir).joinpath("test_image.jpg")
-        shutil.copy(test_data_dir.joinpath("test_image.jpg"), tmp_file)
-        yield tmp_file
+        yield Path(tmp_dir)
+
+
+@pytest.fixture
+def test_picture(test_data_dir: Path, mock_local_storage_dir: Path):
+    tmp_file = mock_local_storage_dir.joinpath("test_image.jpg")
+    shutil.copy(test_data_dir.joinpath("test_image.jpg"), tmp_file)
+    yield tmp_file

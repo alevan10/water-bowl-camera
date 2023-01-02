@@ -28,7 +28,7 @@ before_script:
   - python -V  # Print out python version for debugging
   - pip install --upgrade pip
   - pip install -r requirements.txt
-  - export PYTHONPATH="$(pwd)/src:$(pwd)/src/waterbowl_api:$PYTHONPATH"
+  - export PYTHONPATH="$(pwd)/waterbowl:$PYTHONPATH"
 
 stages:
   - Static Analysis
@@ -40,7 +40,7 @@ Pylint:
   stage: Static Analysis
   retry: 1
   script:
-    - pylint -E -d C0301 src/waterbowl_api tests
+    - pylint -E -d C0301 waterbowl tests
 
 Black:
   stage: Static Analysis
@@ -48,19 +48,6 @@ Black:
   script:
     - python -m black . --check --verbose
 
-Version_Check:
-  stage: Static Analysis
-  retry: 1
-  script:
-    - python version_checker.py
-
-Lint_Dockerfile:
-  stage: Static Analysis
-  retry: 1
-  before_script: []
-  image: hadolint/hadolint:latest-debian
-  script:
-    - hadolint src/docker/Dockerfile
 
 Isort:
   stage: Static Analysis
@@ -93,6 +80,8 @@ Integration:
         POSTGRES_DATABASE: "postgres"
         POSTGRES_USER: "postgres"
         POSTGRES_PASSWORD: "postgres"
+  variables:
+    API_BASE_URL: http://water-bowl-api
   script:
     - pytest -v ./tests/integration
 

@@ -16,7 +16,7 @@ from waterbowl.local_storage_service import (
 logger = logging.getLogger(__name__)
 
 
-async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) -> None:
+async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) -> bool:
     now_timestamp = datetime.now().timestamp()
     with TemporaryDirectory() as tmp_dir:
         try:
@@ -25,13 +25,14 @@ async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) 
             )
             # First, check that the api is active and ready for use
             if not await api_service.api_healthy():
-                new_file = await save_to_storage_log(
+                cached_file = await save_to_storage_log(
                     timestamp=now_timestamp, picture=new_file
                 )
                 logger.error(
                     "API service not healthy, caching file for later",
-                    extra={"timestamp": now_timestamp, "picture": new_file},
+                    extra={"timestamp": now_timestamp, "picture": cached_file},
                 )
+                return False
             else:
                 # If the API is ready, check for any previously cached requests to send first
                 async for log_entry in read_storage_log():
@@ -51,22 +52,25 @@ async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) 
                 await api_service.send_picture(
                     timestamp=now_timestamp, picture=new_file
                 )
+                return True
         except ApiException as ex:
-            new_file = await save_to_storage_log(
+            cached_file = await save_to_storage_log(
                 timestamp=now_timestamp, picture=new_file
             )
             logger.error(
                 "API exception received, caching file for later",
-                extra={"timestamp": now_timestamp, "picture": new_file, "error": ex},
+                extra={"timestamp": now_timestamp, "picture": cached_file, "error": ex},
             )
+            return False
         except Exception as ex:
-            new_file = await save_to_storage_log(
+            cached_file = await save_to_storage_log(
                 timestamp=now_timestamp, picture=new_file
             )
             logger.error(
                 "Unexpected error occurred, caching file for later",
-                extra={"timestamp": now_timestamp, "picture": new_file, "error": ex},
+                extra={"timestamp": now_timestamp, "picture": cached_file, "error": ex},
             )
+            return False
         finally:
             new_file.unlink(missing_ok=True)
 
