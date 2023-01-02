@@ -86,7 +86,7 @@ Check-Deploy:
   before_script:
     - pip install -r prod-requirements.txt
   script:
-    - cat "$WATERBOWL_SSH_KEY" > ~/.ssh/waterbowl_ssh_key
+    - mkdir .ssh && cat "$WATERBOWL_SSH_KEY" > .ssh/waterbowl_ssh_key
     - ansible-playbook playbooks/deploy.yaml --check -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
 
 Deploy:
@@ -98,5 +98,5 @@ Deploy:
   before_script:
     - pip install -r prod-requirements.txt
   script:
-    - cat "$WATERBOWL_SSH_KEY" > ~/.ssh/waterbowl_ssh_key
+    - mkdir .ssh && cat "$WATERBOWL_SSH_KEY" > .ssh/waterbowl_ssh_key
     - ansible-playbook playbooks/deploy.yaml -i playbooks/hosts -e "ansible_sudo_pass=$ROBO_RUTHIE_PASS" -vv
