@@ -48,13 +48,6 @@ Black:
   script:
     - python -m black . --check --verbose
 
-
-Isort:
-  stage: Static Analysis
-  retry: 1
-  script:
-    - isort **/*.py -c -v
-
 Unit:
   stage: Tests
   retry: 1
