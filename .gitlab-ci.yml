@@ -53,6 +53,7 @@ Unit:
   stage: Tests
   retry: 1
   script:
+    - echo $(curl http://levan.home:5000/v2/water-bowl-api/manifests/latest)
     - pytest -v ./tests/unit
 
 
