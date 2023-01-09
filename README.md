@@ -1,4 +1,4 @@
-# Water Bowl API
+# Water Bowl Camera
 
 <img alt="ruthie" src="static/ruthie.jpg"  width=100%/>
 
