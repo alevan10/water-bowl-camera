@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import AsyncGenerator
 from unittest import mock
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -59,7 +59,8 @@ class TestImageWaterBowl:
         self, test_api_service: MagicMock, test_camera_service: AbstractCameraService
     ):
         test_api_service.api_healthy = AsyncMock(return_value=True)
-        test_api_service.send_picture = AsyncMock(return_value=True)
+        test_api_service.send_picture = AsyncMock(return_value="picture_id")
+        test_api_service.update_picture = AsyncMock(return_value=True)
         await image_water_bowl(cam=test_camera_service, api_service=test_api_service)
 
         test_api_service.api_healthy.assert_called_once()
@@ -114,9 +115,50 @@ class TestImageWaterBowl:
     ):
         read_storage_log, _, clear_local_storage = mock_storage_functions
         test_api_service.api_healthy = AsyncMock(return_value=True)
-        test_api_service.send_picture = AsyncMock(return_value=True)
+        test_api_service.send_picture = AsyncMock(return_value="picture_id")
         await image_water_bowl(cam=test_camera_service, api_service=test_api_service)
 
         test_api_service.api_healthy.assert_called_once()
         clear_local_storage.assert_called_once()
         assert test_api_service.send_picture.await_count == 3
+
+    @pytest.mark.freeze_time("2022-12-31")
+    async def test_with_default_update(
+            self,
+            test_api_service: MagicMock,
+            test_camera_service: AbstractCameraService,
+            mock_storage_functions: tuple[
+                AsyncGenerator[LogEntry, None], AsyncMock, AsyncMock
+            ],
+    ):
+        default = {"some": "data"}
+        with patch("waterbowl.run_waterbowl_watcher.DEFAULT_PICTURE_METADATA", default):
+            picture_id = "picture_id"
+            read_storage_log, _, clear_local_storage = mock_storage_functions
+            test_api_service.api_healthy = AsyncMock(return_value=True)
+            test_api_service.send_picture = AsyncMock(return_value=picture_id)
+            test_api_service.update_picture = AsyncMock(return_value=True)
+            await image_water_bowl(cam=test_camera_service, api_service=test_api_service)
+
+            test_api_service.update_picture.assert_called_once_with(picture_id=picture_id, picture_data=default)
+
+    @pytest.mark.freeze_time("2022-12-31")
+    async def test_with_no_default_update(
+            self,
+            test_api_service: MagicMock,
+            test_camera_service: AbstractCameraService,
+            mock_storage_functions: tuple[
+                AsyncGenerator[LogEntry, None], AsyncMock, AsyncMock
+            ],
+    ):
+        default = {}
+        with patch("waterbowl.run_waterbowl_watcher.DEFAULT_PICTURE_METADATA", default):
+            picture_id = "picture_id"
+            read_storage_log, _, clear_local_storage = mock_storage_functions
+            test_api_service.api_healthy = AsyncMock(return_value=True)
+            test_api_service.send_picture = AsyncMock(return_value=picture_id)
+            test_api_service.update_picture = AsyncMock(return_value=True)
+            await image_water_bowl(cam=test_camera_service, api_service=test_api_service)
+
+            test_api_service.update_picture.assert_not_called()
+
