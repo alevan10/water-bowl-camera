@@ -124,12 +124,12 @@ class TestImageWaterBowl:
 
     @pytest.mark.freeze_time("2022-12-31")
     async def test_with_default_update(
-            self,
-            test_api_service: MagicMock,
-            test_camera_service: AbstractCameraService,
-            mock_storage_functions: tuple[
-                AsyncGenerator[LogEntry, None], AsyncMock, AsyncMock
-            ],
+        self,
+        test_api_service: MagicMock,
+        test_camera_service: AbstractCameraService,
+        mock_storage_functions: tuple[
+            AsyncGenerator[LogEntry, None], AsyncMock, AsyncMock
+        ],
     ):
         default = {"some": "data"}
         with patch("waterbowl.run_waterbowl_watcher.DEFAULT_PICTURE_METADATA", default):
@@ -138,18 +138,22 @@ class TestImageWaterBowl:
             test_api_service.api_healthy = AsyncMock(return_value=True)
             test_api_service.send_picture = AsyncMock(return_value=picture_id)
             test_api_service.update_picture = AsyncMock(return_value=True)
-            await image_water_bowl(cam=test_camera_service, api_service=test_api_service)
+            await image_water_bowl(
+                cam=test_camera_service, api_service=test_api_service
+            )
 
-            test_api_service.update_picture.assert_called_once_with(picture_id=picture_id, picture_data=default)
+            test_api_service.update_picture.assert_called_once_with(
+                picture_id=picture_id, picture_data=default
+            )
 
     @pytest.mark.freeze_time("2022-12-31")
     async def test_with_no_default_update(
-            self,
-            test_api_service: MagicMock,
-            test_camera_service: AbstractCameraService,
-            mock_storage_functions: tuple[
-                AsyncGenerator[LogEntry, None], AsyncMock, AsyncMock
-            ],
+        self,
+        test_api_service: MagicMock,
+        test_camera_service: AbstractCameraService,
+        mock_storage_functions: tuple[
+            AsyncGenerator[LogEntry, None], AsyncMock, AsyncMock
+        ],
     ):
         default = {}
         with patch("waterbowl.run_waterbowl_watcher.DEFAULT_PICTURE_METADATA", default):
@@ -158,7 +162,8 @@ class TestImageWaterBowl:
             test_api_service.api_healthy = AsyncMock(return_value=True)
             test_api_service.send_picture = AsyncMock(return_value=picture_id)
             test_api_service.update_picture = AsyncMock(return_value=True)
-            await image_water_bowl(cam=test_camera_service, api_service=test_api_service)
+            await image_water_bowl(
+                cam=test_camera_service, api_service=test_api_service
+            )
 
             test_api_service.update_picture.assert_not_called()
-

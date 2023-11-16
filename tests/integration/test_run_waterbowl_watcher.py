@@ -72,7 +72,9 @@ class TestImageWaterBowl:
         assert result is True
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures("mock_local_storage", "test_stored_pictures", "ignore_update")
+    @pytest.mark.usefixtures(
+        "mock_local_storage", "test_stored_pictures", "ignore_update"
+    )
     async def test_image_water_bowl_success_with_log_entries(
         self, test_camera_service: AbstractCameraService, test_api_service: ApiService
     ):

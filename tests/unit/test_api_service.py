@@ -45,7 +45,9 @@ async def test_get_health_returns_false(
 async def test_send_picture(
     base_url: str, test_api_service: ApiService, test_server: aioresponses
 ):
-    test_server.post(f"{base_url}/pictures", status=200, body=json.dumps({"id": "some_id"}))
+    test_server.post(
+        f"{base_url}/pictures", status=200, body=json.dumps({"id": "some_id"})
+    )
     success = await test_api_service.send_picture(timestamp=1.1, picture=Path(__file__))
     assert success == "some_id"
 
@@ -65,5 +67,7 @@ async def test_update_picture(
 ):
     picture_id = "some_id"
     test_server.patch(f"{base_url}/pictures/{picture_id}/", status=200, body="")
-    success = await test_api_service.update_picture(picture_id=picture_id, picture_data={})
+    success = await test_api_service.update_picture(
+        picture_id=picture_id, picture_data={}
+    )
     assert success

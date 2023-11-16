@@ -5,13 +5,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from waterbowl.api_service import ApiException, ApiService
-from waterbowl.camera_service import AbstractCameraService, camera_service_factory
+from waterbowl.camera_service import (AbstractCameraService,
+                                      camera_service_factory)
 from waterbowl.enums import LOCAL_STORAGE_DIR, WAIT_TIME
-from waterbowl.local_storage_service import (
-    clear_local_storage,
-    read_storage_log,
-    save_to_storage_log,
-)
+from waterbowl.local_storage_service import (clear_local_storage,
+                                             read_storage_log,
+                                             save_to_storage_log)
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,9 @@ async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) 
                     timestamp=now_timestamp, picture=new_file
                 )
                 if DEFAULT_PICTURE_METADATA:
-                    await api_service.update_picture(picture_id=new_picture_id, picture_data=DEFAULT_PICTURE_METADATA)
+                    await api_service.update_picture(
+                        picture_id=new_picture_id, picture_data=DEFAULT_PICTURE_METADATA
+                    )
                 return True
         except ApiException as ex:
             cached_file = await save_to_storage_log(

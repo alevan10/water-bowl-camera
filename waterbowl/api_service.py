@@ -1,10 +1,10 @@
+import json
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 import aiofiles
 import aiohttp
-import json
 from aiohttp import FormData
 
 from waterbowl.enums import API_BASE_URL
@@ -44,9 +44,13 @@ class ApiService:
                     picture_data = await resp.json()
                     return picture_data["id"]
 
-    async def update_picture(self, picture_id: str, picture_data: dict[str, Any]) -> bool:
+    async def update_picture(
+        self, picture_id: str, picture_data: dict[str, Any]
+    ) -> bool:
         async with aiohttp.ClientSession() as session:
-            async with session.patch(f"{self.base_url}/pictures/{picture_id}/", json=picture_data) as resp:
+            async with session.patch(
+                f"{self.base_url}/pictures/{picture_id}/", json=picture_data
+            ) as resp:
                 if resp.status != 200:
                     raise ApiException(f"Error from the api: status {resp.status}")
         return True
