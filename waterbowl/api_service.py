@@ -26,27 +26,23 @@ class ApiService:
                 return resp.status == 200
 
     async def send_picture(self, timestamp: float, picture: Path) -> str:
+        form_data = FormData()
+        form_data.add_field("timestamp", str(timestamp))
         async with aiofiles.open(picture, "rb") as picture_file:
+            form_data.add_field(
+                "picture",
+                BytesIO(await picture_file.read()),
+                filename=picture.name,
+                content_type="image/jpeg",
+            )
             async with aiohttp.ClientSession() as session:
-                with aiohttp.MultipartWriter("form-data") as form_data:
-                    part = form_data.append(str(timestamp))
-                    part.set_content_disposition("form-data", name="timestamp")
-                    part = form_data.append(picture_file)
-                    part.set_content_disposition(
-                        "form-data",
-                        name="picture",
-                        filename=picture.name,
-                        content_type="image/jpeg",
-                    )
-                    async with session.post(
-                        f"{self.base_url}/pictures", data=form_data
-                    ) as resp:
-                        if resp.status != 200:
-                            raise ApiException(
-                                f"Error from the api: status {resp.status}"
-                            )
-                        picture_data = await resp.json()
-                        return picture_data["id"]
+                async with session.post(
+                    f"{self.base_url}/pictures/", data=form_data
+                ) as resp:
+                    if resp.status != 200:
+                        raise ApiException(f"Error from the api: status {resp.status}")
+                    picture_data = await resp.json()
+                    return picture_data["id"]
 
     async def update_picture(
         self, picture_id: str, picture_data: dict[str, Any]

@@ -10,7 +10,7 @@ class Environments(str, Enum):
 
 API_BASE_URL = os.environ.get("API_BASE_URL", "http://levan.home/api/waterbowl/v1")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", Environments.DEV)
-WAIT_TIME = os.environ.get("WAIT_TIME", 5 * 60)  # Wait for 15 minutes
+WAIT_TIME = os.environ.get("WAIT_TIME", 10 * 60)  # Wait for 10 minutes
 
 ROOT_DIR = Path(__file__).parent.parent
 TEST_FILE_NAME = "test_image.jpg"

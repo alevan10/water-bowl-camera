@@ -82,3 +82,17 @@ class TestImageWaterBowl:
             cam=test_camera_service, api_service=test_api_service
         )
         assert result is True
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("mock_local_storage", "test_stored_pictures")
+    async def test_image_water_bowl_success_with_update(
+        self, test_camera_service: AbstractCameraService, test_api_service: ApiService
+    ):
+        with mock.patch(
+            "waterbowl.run_waterbowl_watcher.DEFAULT_PICTURE_METADATA",
+            {"human_water_yes": 1},
+        ):
+            result = await image_water_bowl(
+                cam=test_camera_service, api_service=test_api_service
+            )
+            assert result is True
