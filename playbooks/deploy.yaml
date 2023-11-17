@@ -35,11 +35,11 @@
         src: ../waterbowl_camera.service
         dest: /etc/systemd/system/waterbowl_camera.service
         owner: ruthie
-    # Enabling this for now to capture lots of dry bowl images
-    - name: Start waterbowl_camera service
-      become: true
-      systemd:
-        state: started
-        enabled: true
-        daemon_reload: true
-        name: waterbowl_camera
+    # Disabling this until modeling is done
+#    - name: Start waterbowl_camera service
+#      become: true
+#      systemd:
+#        state: started
+#        enabled: true
+#        daemon_reload: true
+#        name: waterbowl_camera
