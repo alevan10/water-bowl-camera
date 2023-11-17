@@ -46,7 +46,7 @@ async def test_send_picture(
     base_url: str, test_api_service: ApiService, test_server: aioresponses
 ):
     test_server.post(
-        f"{base_url}/pictures", status=200, body=json.dumps({"id": "some_id"})
+        f"{base_url}/pictures/", status=200, body=json.dumps({"id": "some_id"})
     )
     success = await test_api_service.send_picture(timestamp=1.1, picture=Path(__file__))
     assert success == "some_id"
@@ -56,7 +56,7 @@ async def test_send_picture(
 async def test_send_picture_fails(
     base_url: str, test_api_service: ApiService, test_server: aioresponses
 ):
-    test_server.post(f"{base_url}/pictures", status=500, body="")
+    test_server.post(f"{base_url}/pictures/", status=500, body="")
     with pytest.raises(ApiException):
         await test_api_service.send_picture(timestamp=1.1, picture=Path(__file__))
 
