@@ -16,6 +16,10 @@ from waterbowl.local_storage_service import (
 logger = logging.getLogger(__name__)
 
 
+UPDATE_PICTURE_METADATA = True
+DEFAULT_PICTURE_METADATA = {"human_water_yes": 1}
+
+
 async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) -> bool:
     now_timestamp = datetime.now().timestamp()
     with TemporaryDirectory() as tmp_dir:
@@ -49,9 +53,13 @@ async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) 
                 # Clear the local storage just in case we had some entries to send
                 await clear_local_storage()
                 # Then, send the new picture
-                await api_service.send_picture(
+                new_picture_id = await api_service.send_picture(
                     timestamp=now_timestamp, picture=new_file
                 )
+                if DEFAULT_PICTURE_METADATA:
+                    await api_service.update_picture(
+                        picture_id=new_picture_id, picture_data=DEFAULT_PICTURE_METADATA
+                    )
                 return True
         except ApiException as ex:
             cached_file = await save_to_storage_log(

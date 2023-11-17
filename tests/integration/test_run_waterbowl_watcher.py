@@ -38,6 +38,12 @@ def mock_local_storage(
 
 
 @pytest.fixture
+def ignore_update() -> None:
+    with mock.patch("waterbowl.run_waterbowl_watcher.DEFAULT_PICTURE_METADATA", {}):
+        yield
+
+
+@pytest.fixture
 def test_stored_pictures(
     mock_local_storage_dir: Path, mock_local_storage_log: Path, test_picture: Path
 ) -> list[Path]:
@@ -56,7 +62,7 @@ def test_stored_pictures(
 
 class TestImageWaterBowl:
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures("mock_local_storage")
+    @pytest.mark.usefixtures("mock_local_storage", "ignore_update")
     async def test_image_water_bowl_success(
         self, test_camera_service: AbstractCameraService, test_api_service: ApiService
     ):
@@ -66,7 +72,9 @@ class TestImageWaterBowl:
         assert result is True
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures("mock_local_storage", "test_stored_pictures")
+    @pytest.mark.usefixtures(
+        "mock_local_storage", "test_stored_pictures", "ignore_update"
+    )
     async def test_image_water_bowl_success_with_log_entries(
         self, test_camera_service: AbstractCameraService, test_api_service: ApiService
     ):
@@ -74,3 +82,17 @@ class TestImageWaterBowl:
             cam=test_camera_service, api_service=test_api_service
         )
         assert result is True
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("mock_local_storage", "test_stored_pictures")
+    async def test_image_water_bowl_success_with_update(
+        self, test_camera_service: AbstractCameraService, test_api_service: ApiService
+    ):
+        with mock.patch(
+            "waterbowl.run_waterbowl_watcher.DEFAULT_PICTURE_METADATA",
+            {"human_water_yes": 1},
+        ):
+            result = await image_water_bowl(
+                cam=test_camera_service, api_service=test_api_service
+            )
+            assert result is True

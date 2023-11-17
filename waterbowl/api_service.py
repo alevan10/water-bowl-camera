@@ -1,5 +1,7 @@
+import json
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 import aiofiles
 import aiohttp
@@ -23,7 +25,7 @@ class ApiService:
             async with session.get(f"{self.base_url}/health") as resp:
                 return resp.status == 200
 
-    async def send_picture(self, timestamp: float, picture: Path) -> bool:
+    async def send_picture(self, timestamp: float, picture: Path) -> str:
         form_data = FormData()
         form_data.add_field("timestamp", str(timestamp))
         async with aiofiles.open(picture, "rb") as picture_file:
@@ -35,8 +37,20 @@ class ApiService:
             )
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    f"{self.base_url}/pictures", data=form_data
+                    f"{self.base_url}/pictures/", data=form_data
                 ) as resp:
                     if resp.status != 200:
                         raise ApiException(f"Error from the api: status {resp.status}")
-                return True
+                    picture_data = await resp.json()
+                    return picture_data["id"]
+
+    async def update_picture(
+        self, picture_id: str, picture_data: dict[str, Any]
+    ) -> bool:
+        async with aiohttp.ClientSession() as session:
+            async with session.patch(
+                f"{self.base_url}/pictures/{picture_id}/", json=picture_data
+            ) as resp:
+                if resp.status != 200:
+                    raise ApiException(f"Error from the api: status {resp.status}")
+        return True
