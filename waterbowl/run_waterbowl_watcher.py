@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 UPDATE_PICTURE_METADATA = True
-DEFAULT_PICTURE_METADATA = {"human_water_yes": 1}
+DEFAULT_PICTURE_METADATA = {}
 
 
 async def image_water_bowl(cam: AbstractCameraService, api_service: ApiService) -> bool:
